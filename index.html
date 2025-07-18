@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <title>LAN&amp;HACK by Gay Ray AI</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; background: #f5f5f5; }
+        h1 { color: #333; }
+        .mod-card {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+        .mod-card img {
+            max-width: 100%;
+            border-radius: 4px;
+        }
+        .mod-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .mod-description {
+            margin: 0.5rem 0;
+        }
+        .mod-links a {
+            margin-right: 1rem;
+            color: #0077cc;
+            text-decoration: none;
+        }
+        .mod-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>LAN&amp;HACK by Gay Ray AI</h1>
+    <div id="mod-list">กำลังโหลดข้อมูล...</div>
+
+    <script>
+        // 🔧 แก้ไขลิงก์ JSON ด้านล่างตามที่คุณต้องการ
+        const jsonUrl = 'https://cdn.jsdelivr.net/gh/Artimis2nd/mod-thai@main/User-mods.json';
+
+        fetch(jsonUrl)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("mod-list");
+            container.innerHTML = "";
+
+            data.forEach(mod => {
+                const card = document.createElement("div");
+                card.className = "mod-card";
+                card.innerHTML = `
+                    <div class="mod-title">${mod.mod_name}</div>
+                    <img src="https://tinfoil.media/thi/${mod.build_id}/0/0/" alt="ภาพตัวอย่าง">
+                    <div class="mod-description">${mod.description}</div>
+                    <div class="mod-links">
+                        <a href="${mod.facebook_post_url}" target="_blank">ดูโพสต์</a>
+                        <a href="${mod.credit}" target="_blank">เครดิต</a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        })
+        .catch(err => {
+            document.getElementById("mod-list").innerText = "โหลดข้อมูลไม่สำเร็จ หรือไม่มีไฟล์ JSON";
+            console.error(err);
+        });
+    </script>
+</body>
+</html>
