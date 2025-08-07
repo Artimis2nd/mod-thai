@@ -46,13 +46,13 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             width: 200px;
-            padding: 10px;
+            padding: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .mod-image {
             width: 200px;
-            height: 120px;
+            height: 110px;
             background-color: white;
             border: 1px solid #999;
             display: flex;
@@ -68,7 +68,8 @@
         }
         
         .mod-title {
-            font-weight: bold;
+            font-weight: normal;
+            font-size: 13px;
             margin-bottom: 5px;
             white-space: nowrap;
             overflow: hidden;
@@ -181,7 +182,7 @@
             <label for="sort">เรียงตาม:</label>
             <select id="sort" class="sort-options">
                 <option value="alphabetical">ตัวอักษร (A-Z)</option>
-                <option value="date">วันที่อัพเดท (ใหม่สุด)</option>
+                <option value="date" selected>วันที่อัพเดท (ใหม่สุด)</option>
             </select>
         </div>
         
@@ -236,6 +237,7 @@
     <script>
         // ตัวแปร global
         let modData = [];
+        let imageMap = {}; // ไว้เก็บ mapping จาก images.json
         let filteredData = [];
         let currentPage = 1;
         const itemsPerPage = 20;
@@ -270,6 +272,8 @@
                 // เปลี่ยน URL นี้เป็นที่เก็บไฟล์ JSON ของคุณ
                 const response = await fetch('User-mods.json');
                 modData = await response.json();
+                const imageResponse = await fetch('images.json');
+                imageMap = await imageResponse.json();
                 
                 // แปลงวันที่จาก string เป็น Date object ถ้ามี
                 modData.forEach(mod => {
@@ -353,28 +357,24 @@
         function createModCard(mod) {
             const card = document.createElement('div');
             card.className = 'mod-card';
-            
+        
             const imageContainer = document.createElement('div');
             imageContainer.className = 'mod-image';
-            
+        
             const img = document.createElement('img');
             img.src = `https://tinfoil.media/thi/${mod.build_id}/0/0/`;
+        
+            img.onerror = () => handleImageError(img, mod.build_id);
             img.alt = mod.mod_name;
-            img.onerror = () => {
-                imageContainer.textContent = 'ไม่มีรูปภาพ';
-                imageContainer.style.display = 'flex';
-                imageContainer.style.alignItems = 'center';
-                imageContainer.style.justifyContent = 'center';
-            };
-            
+        
             imageContainer.appendChild(img);
             card.appendChild(imageContainer);
-            
+        
             const title = document.createElement('div');
             title.className = 'mod-title';
             title.textContent = mod.mod_name;
             card.appendChild(title);
-            
+        
             if (mod.facebook_post_url) {
                 const button = document.createElement('button');
                 button.className = 'mod-button';
@@ -385,20 +385,17 @@
                 };
                 card.appendChild(button);
             }
-            
-            // เพิ่ม event listener สำหรับแสดงรายละเอียด
+        
             card.onclick = () => showModDetails(mod);
-            
+        
             return card;
         }
         
         // แสดงรายละเอียด Mod ใน modal
         function showModDetails(mod) {
             modalImage.src = `https://tinfoil.media/thi/${mod.build_id}/0/0/`;
-            modalImage.onerror = () => {
-                modalImage.style.display = 'none';
-            };
-            
+            modalImage.onerror = () => handleImageError(modalImage, mod.build_id);
+        
             modalName.textContent = mod.mod_name || '-';
             modalBuildId.textContent = mod.build_id || '-';
             modalDescription.textContent = mod.description || '-';
@@ -471,10 +468,26 @@
                 modal.style.display = 'none';
             }
         });
-        
+        // ✅ ใส่ฟังก์ชันนี้ก่อนปิด script
+        function handleImageError(imgElement, buildId) {
+            if (imageMap[buildId]) {
+                imgElement.onerror = () => {
+                    imgElement.src = 'images/default.jpg';
+                };
+                imgElement.src = imageMap[buildId];
+            } else {
+                imgElement.src = 'images/default.jpg';
+            }
+        }
         // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
         window.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
+
+
+
+
+
+
 
